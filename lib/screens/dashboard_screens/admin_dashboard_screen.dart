@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../widgets/my_app_bar/my_app_bar.dart';
 import '../login_signup_screens/tab_bar.dart';
-import 'admin_blood_request.dart';
+import '../blood_request_donate_screens/admin_blood_request.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});

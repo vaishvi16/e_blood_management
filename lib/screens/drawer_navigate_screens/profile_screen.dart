@@ -22,7 +22,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   File? galleryFile;
 
-  var dropDownGender; //for blood group
+  var dropDownGender;
   var dropDownBloodGroup;
 
   final _formKey = GlobalKey<FormState>();
@@ -36,15 +36,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-   // getvalue();
    _initSharedPrefs();
   }
 
   void _initSharedPrefs() async {
     sharedPreferences = await SharedPreferences.getInstance();
+    int? userId = sharedPreferences.getInt("user_id");
+
+    if (userId != null) {
+      Map<String, dynamic>? user = await dbHelper.getDetailsFromId(userId);
+      if (user != null) {
+        setState(() {
+          name.text = user[DbHelper.username] ?? '';
+          email.text = user[DbHelper.useremail] ?? '';
+          mobile.text = user[DbHelper.usercontact] ?? '';
+          city.text = user[DbHelper.usercity] ?? '';
+          state.text = user[DbHelper.userstate] ?? '';
+          dropDownGender = user[DbHelper.usergender] ?? '';
+          dropDownBloodGroup = user[DbHelper.userbloodgrp] ?? '';
+        });
+      } else {
+        print("User not found in DB.");
+      }
+    } else {
+      print("User ID not found in SharedPreferences.");
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -266,13 +285,5 @@ class _ProfileScreenState extends State<ProfileScreen> {
         galleryFile = File(pickedFile.path);
       });
     }
-  }
-
-  getvalue() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-
-    setState(() {
-      data = sharedPreferences.getString("myemail");
-    });
   }
 }

@@ -31,6 +31,17 @@ class DbHelper {
   static final columnLocation = "location";
   static final columnStatus = "status";
 
+  //blood request table details
+  static final requestTable = "request";
+  static final requestId = "id";
+  static final ColumnRequestUserId = "user_id";
+  static final columnRequestDate = "donation_date";
+  static final columnRequestQuantity = "quantity_ml";
+  static final columnRequestHospitalName = "hospital_name";
+  static final columnRequestLocation = "location";
+  static final columnRequestUrgency = "urgency";
+  static final columnRequestBloodGroup = "blood_group";
+
   //private constructor
   DbHelper._privateconstructor();
 
@@ -86,6 +97,21 @@ class DbHelper {
     FOREIGN KEY ($columnUserId) REFERENCES $_tablename($_userid) ON DELETE CASCADE
   )
 ''');
+
+    await db.execute('''
+  CREATE TABLE $requestTable 
+  (
+    $requestId INTEGER PRIMARY KEY AUTOINCREMENT,
+    $ColumnRequestUserId INTEGER NOT NULL,
+    $columnRequestDate TEXT NOT NULL,
+    $columnRequestQuantity INTEGER,
+    $columnRequestHospitalName TEXT,
+    $columnRequestLocation TEXT,
+    $columnRequestUrgency TEXT,
+    $columnRequestBloodGroup TEXT,
+    FOREIGN KEY ($ColumnRequestUserId) REFERENCES $_tablename($_userid) ON DELETE CASCADE
+  )
+''');
   }
 
   //insert data of user profile
@@ -122,16 +148,16 @@ class DbHelper {
     return result.isNotEmpty ? result.first : null;
   }
 
-  // fetch donation details
-  Future<List<Map<String, dynamic>>> getAllDonations() async {
-    final db = await database;
-    return await db.query(donationTable);
-  }
-
   //insert data of blood donate
   Future<int> insertBloodDonateData(Map<String, dynamic> row) async {
     Database? db = await instance.database;
     return await db.insert(donationTable, row);
+  }
+
+  // fetch donation details
+  Future<List<Map<String, dynamic>>> getAllDonations() async {
+    final db = await database;
+    return await db.query(donationTable);
   }
 
   //update blood donate data
@@ -172,4 +198,58 @@ class DbHelper {
       throw Exception('Donation with id $id not found');
     }
   }
+
+  //insert data of blood request
+  Future<int> insertBloodRequestData(Map<String, dynamic> row) async {
+    Database? db = await instance.database;
+    return await db.insert(requestTable, row);
+  }
+
+  // fetch request details
+  Future<List<Map<String, dynamic>>> getAllRequests() async {
+    final db = await database;
+    return await db.query(requestTable);
+  }
+
+  //delete blood request data
+  Future<int> deleteBloodRequestData(int id) async {
+    Database db = await instance.database;
+    return await db.delete(
+      requestTable,
+      where: '$requestId = ?',
+      whereArgs: [id],
+    );
+  }
+
+  // update request from the given id
+  Future<Map<String, dynamic>> getRequestById(int id) async {
+    final db = await instance.database;
+
+    final result = await db.query(
+      requestTable,
+      where: '$requestId = ?',
+      whereArgs: [id],
+    );
+
+    if (result.isNotEmpty) {
+      return result.first;
+    } else {
+      throw Exception('Request with id $id not found');
+    }
+  }
+
+  //update blood request data
+  Future<int> updateBloodRequestData(Map<String, dynamic> row) async {
+    Database db = await instance.database;
+    int id = row[requestId];
+    return await db.update(
+      requestTable,
+      row,
+      where: '$requestId = ? ',
+      whereArgs: [id],
+    );
+  }
+
+
+
 }

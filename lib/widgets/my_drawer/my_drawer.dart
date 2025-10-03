@@ -2,8 +2,10 @@ import 'package:e_blood_management/colors/my_colors.dart';
 import 'package:e_blood_management/screens/blood_request_donate_screens/admin_blood_donate.dart';
 import 'package:e_blood_management/screens/dashboard_screens/dashboard_screen.dart';
 import 'package:e_blood_management/screens/drawer_navigate_screens/about_us_screen.dart';
+import 'package:e_blood_management/screens/drawer_navigate_screens/donation_list.dart';
 import 'package:e_blood_management/screens/drawer_navigate_screens/guidelines_screen.dart';
 import 'package:e_blood_management/screens/drawer_navigate_screens/profile_screen.dart';
+import 'package:e_blood_management/screens/drawer_navigate_screens/request_list.dart';
 import 'package:e_blood_management/screens/login_signup_screens/tab_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,9 +44,9 @@ class _MyDrawerState extends State<MyDrawer> {
             child: ListView(
               children: [
                 showMenuOptions("Profile", Icon(Icons.person_rounded), ProfileScreen()),
-                showMenuOptions("Requests", Icon(Icons.bloodtype_outlined), DashboardScreen()),
+                showMenuOptions("Requests", Icon(Icons.bloodtype_outlined), RequestList()),
                 showMenuOptions("Guidelines to donate blood", Icon(Icons.note_outlined), GuidelinesScreen()),
-                showMenuOptions("Donation List", Icon(Icons.history_outlined), AdminBloodDonate()),
+                showMenuOptions("Donation List", Icon(Icons.history_outlined), DonationList()),
                 showMenuOptions("About Us", Icon(Icons.info), AboutUsScreen()),
               ],
             ),

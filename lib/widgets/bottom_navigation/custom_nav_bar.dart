@@ -27,7 +27,7 @@ class _CustomNavBarState extends State<CustomNavBar> {
       DashboardScreen(),
       DashboardScreen(),
       BloodDonate(userId: widget.userId),
-      BloodRequest(),
+      BloodRequest(userId:  widget.userId,),
     ];
 
   }
