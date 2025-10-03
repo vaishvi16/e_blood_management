@@ -26,7 +26,6 @@ class DbHelper {
   static final donationId = "id";
   static final columnUserId = "user_id";
   static final columnDonationDate = "donation_date";
-  static final columnBloodGroup = "blood_group";
   static final columnQuantity = "quantity_ml";
   static final columnHospitalName = "hospital_name";
   static final columnLocation = "location";
@@ -80,7 +79,6 @@ class DbHelper {
     $donationId INTEGER PRIMARY KEY AUTOINCREMENT,
     $columnUserId INTEGER NOT NULL,
     $columnDonationDate TEXT NOT NULL,
-    $columnBloodGroup TEXT NOT NULL,
     $columnQuantity INTEGER,
     $columnHospitalName TEXT,
     $columnLocation TEXT,
@@ -90,7 +88,7 @@ class DbHelper {
 ''');
   }
 
-  //insert
+  //insert data of user profile
   Future<int> insertdata(Map<String, dynamic> row) async {
     Database? db = await instance.database;
     return await db.insert(_tablename, row);
@@ -130,8 +128,48 @@ class DbHelper {
     return await db.query(donationTable);
   }
 
+  //insert data of blood donate
+  Future<int> insertBloodDonateData(Map<String, dynamic> row) async {
+    Database? db = await instance.database;
+    return await db.insert(donationTable, row);
+  }
 
-//update
+  //update blood donate data
+  Future<int> updateBloodDonateData(Map<String, dynamic> row) async {
+    Database db = await instance.database;
+    int id = row[donationId];
+    return await db.update(
+      donationTable,
+      row,
+      where: '$donationId = ? ',
+      whereArgs: [id],
+    );
+  }
 
-  //delete
+  //delete blood donate data
+  Future<int> deleteBloodDonateData(int id) async {
+    Database db = await instance.database;
+    return await db.delete(
+      donationTable,
+      where: '$donationId = ?',
+      whereArgs: [id],
+    );
+  }
+
+  // update record from the given id
+  Future<Map<String, dynamic>> getDonationById(int id) async {
+    final db = await instance.database;
+
+    final result = await db.query(
+      donationTable,
+      where: '$donationId = ?',
+      whereArgs: [id],
+    );
+
+    if (result.isNotEmpty) {
+      return result.first;
+    } else {
+      throw Exception('Donation with id $id not found');
+    }
+  }
 }

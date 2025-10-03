@@ -2,20 +2,22 @@ import 'package:e_blood_management/colors/my_colors.dart';
 import 'package:e_blood_management/screens/dashboard_screens/dashboard_screen.dart';
 import 'package:e_blood_management/screens/login_signup_screens/tab_bar.dart';
 import 'package:e_blood_management/screens/login_signup_screens/user_login.dart';
+import 'package:e_blood_management/widgets/bottom_navigation/custom_nav_bar.dart';
 import 'package:e_blood_management/widgets/custom_fields/custom_dropdown.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../db_helper/db_helper.dart';
 import '../../widgets/custom_fields/custom_textfield.dart';
 
 class SignupScreen extends StatefulWidget {
-  const SignupScreen({super.key});
 
   @override
   State<SignupScreen> createState() => _SignupScreenState();
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  late SharedPreferences sharedPreferences;
   DbHelper dbHelper = DbHelper.instance;
   var dropDownGender; //for blood group
   var dropDownBloodGroup;
@@ -106,6 +108,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       },
                       keyboardType: TextInputType.text,
                       controller: password,
+                    //  obsureText: true,
                       labelText: "Password",
                       hintText: "Enter your Password",
                     ),
@@ -174,24 +177,16 @@ class _SignupScreenState extends State<SignupScreen> {
                     SizedBox(height: 30),
                     ElevatedButton(
                       onPressed: () {
-                        String nameValue = name.text.toString();
-                        String emailValue = email.text.toString();
-                        String passValue = password.text.toString();
-                        String mobileValue = mobile.text.toString();
-                        String cityValue = city.text.toString();
-                        String stateValue =  state.text.toString();
-
-
                         if (_formKey.currentState!.validate()) {
-                          //  signup(n, s, e, p);
-                          insertUserData(nameValue, emailValue, passValue, mobileValue, cityValue, stateValue);
 
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TabBarScreen(),
-                            ),
-                          );
+                          String nameValue = name.text.toString();
+                          String emailValue = email.text.toString();
+                          String passValue = password.text.toString();
+                          String mobileValue = mobile.text.toString();
+                          String cityValue = city.text.toString();
+                          String stateValue =  state.text.toString();
+
+                          insertUserData(nameValue, emailValue, passValue, mobileValue, cityValue, stateValue);
                         }
                       },
                       child: Text(
@@ -213,21 +208,31 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   void insertUserData(String nameValue, String emailValue, String passvalue,String mobileValue, String cityValue, String stateValue) async {
+    Map<String, dynamic> row = {
+      DbHelper.username: nameValue,
+      DbHelper.useremail: emailValue,
+      DbHelper.userpassword: passvalue,
+      DbHelper.usergender: dropDownGender ?? '',
+      DbHelper.usercontact: mobileValue,
+      DbHelper.userbloodgrp: dropDownBloodGroup ?? '',
+      DbHelper.userstate: stateValue,
+      DbHelper.usercity: cityValue,
+    };
     try {
-      Map<String, dynamic> row = {
-        DbHelper.username: nameValue,
-        DbHelper.useremail: emailValue,
-        DbHelper.userpassword: passvalue,
-        DbHelper.usergender: dropDownGender ?? '',
-        DbHelper.usercontact: mobileValue,
-        DbHelper.userbloodgrp: dropDownBloodGroup ?? '',
-        DbHelper.userstate: stateValue,
-        DbHelper.usercity: cityValue,
-      };
 
-      print('inserted data: $row');
       final id = await dbHelper.insertdata(row);
       print('Inserted row id: $id');
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('is_login', true);
+      await prefs.setInt('user_id', id);
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CustomNavBar(userId: id), // ✅ no longer nullable
+        ),
+      );
 
       name.clear();
       email.clear();

@@ -37,36 +37,38 @@ class _MyGridViewState extends State<MyGridView> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(12.00),
-      child: GridView.builder(
-        itemCount: cardNameList.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-        ),
-        itemBuilder: (context, index) {
-          return Container(
-            //margin: EdgeInsets.only(left: 10),
-            decoration: BoxDecoration(
-              color: MyColors.whiteColor,
-              border: Border.all(color: Colors.red),
-              borderRadius: BorderRadius.circular(12),
-            ),
+    return Container(
+      child: Padding(
+        padding: EdgeInsets.all(12.00),
+        child: GridView.builder(
+          itemCount: cardNameList.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+          ),
+          itemBuilder: (context, index) {
+            return Container(
+              //margin: EdgeInsets.only(left: 10),
+              decoration: BoxDecoration(
+                color: MyColors.whiteColor,
+                border: Border.all(color: Colors.red),
+                borderRadius: BorderRadius.circular(12),
+              ),
 
-            child: ListTile(
-              title: Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: Icon(cardIconList[index], size: 50),
+              child: ListTile(
+                title: Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: Icon(cardIconList[index], size: 50),
+                ),
+                subtitle: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [Text(cardNameList[index], style: bigBoldText)],
+                ),
               ),
-              subtitle: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [Text(cardNameList[index], style: bigBoldText)],
-              ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

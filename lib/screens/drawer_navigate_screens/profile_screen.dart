@@ -9,7 +9,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -54,18 +53,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: MyAppBar(
         title: Text("Profile"),
         centerTitle: true,
-        actions: [
-          IconButton(
-            onPressed: () {
-              sharedPreferences.setBool("is_login", true);
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => TabBarScreen()),
-              );
-            },
-            icon: Icon(Icons.logout),
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     onPressed: () {
+        //       sharedPreferences.setBool("is_login", false);
+        //       Navigator.pushReplacement(
+        //         context,
+        //         MaterialPageRoute(builder: (context) => TabBarScreen()),
+        //       );
+        //     },
+        //     icon: Icon(Icons.logout),
+        //   ),
+        // ],
       ),
       body: Form(
         key: _formKey,

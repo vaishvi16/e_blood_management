@@ -1,5 +1,6 @@
 import 'package:e_blood_management/screens/dashboard_screens/dashboard_screen.dart';
 import 'package:e_blood_management/screens/login_signup_screens/signup_screen.dart';
+import 'package:e_blood_management/widgets/bottom_navigation/custom_nav_bar.dart';
 import 'package:e_blood_management/widgets/custom_fields/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -124,29 +125,28 @@ class _UserLoginState extends State<UserLogin> {
     String useremail = email.text;
     String userpassword = password.text;
 
-    Map<String, dynamic>? user = await dbHelper.checkId(
-      useremail,
-      userpassword,
-    );
+    Map<String, dynamic>? user = await dbHelper.checkId(useremail, userpassword);
 
     if (user != null) {
-      print("Vaishvi u did it!!! Login success");
-
-      sharedPreferences.setBool("is_login", false);
+      sharedPreferences.setBool("is_login", true); // corrected to true
       sharedPreferences.setString("myemail", useremail);
       sharedPreferences.setString("mypass", userpassword);
+      sharedPreferences.setInt("user_id", user['id']);
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => DashboardScreen()),
+        MaterialPageRoute(
+          builder: (context) => CustomNavBar(userId: user['id']),
+        ),
       );
     } else {
-      print("Not found");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Please enter valid credentials')));
+      print("Login failed");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter valid credentials')),
+      );
     }
   }
+
 
 
 }

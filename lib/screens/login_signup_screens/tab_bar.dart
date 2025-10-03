@@ -1,10 +1,11 @@
 import 'package:e_blood_management/colors/my_colors.dart';
+import 'package:e_blood_management/screens/dashboard_screens/admin_dashboard_screen.dart';
+import 'package:e_blood_management/screens/dashboard_screens/dashboard_screen.dart';
 import 'package:e_blood_management/screens/login_signup_screens/admin_login.dart';
 import 'package:e_blood_management/screens/login_signup_screens/user_login.dart';
+import 'package:e_blood_management/widgets/bottom_navigation/custom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../dashboard_screens/dashboard_screen.dart';
 
 class TabBarScreen extends StatefulWidget {
   const TabBarScreen({super.key});
@@ -14,13 +15,30 @@ class TabBarScreen extends StatefulWidget {
 }
 
 class _TabBarScreenState extends State<TabBarScreen> {
-
-  late SharedPreferences sharedPreferences;
-  var newuser;
-
   @override
   void initState() {
-    checklogin();
+    super.initState();
+    _checkUserLogin();
+  }
+
+  Future<void> _checkUserLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final isAdminLoggedIn = prefs.getBool('is_admin_login') ?? false;
+    final isUserLoggedIn = prefs.getBool('is_login') ?? false;
+    final userId = prefs.getInt('user_id');
+
+    if (isAdminLoggedIn) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const AdminDashboardScreen()),
+      );
+    } else if (isUserLoggedIn && userId != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => CustomNavBar(userId: userId)),
+      );
+    }
   }
 
   @override
@@ -45,29 +63,24 @@ class _TabBarScreenState extends State<TabBarScreen> {
           ),
           child: Center(
             child: Column(
-              mainAxisSize: MainAxisSize.min, // Important to center content
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // TabBar
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: TabBar(
-                    labelColor: MyColors.primaryColor,
-                    unselectedLabelColor: MyColors.blackColor,
-                    indicatorColor: MyColors.primaryColor,
-                    tabs: const [
-                      Tab(text: "Admin"),
-                      Tab(text: "User"),
-                    ],
-                  ),
+                 TabBar(
+                  labelColor: MyColors.primaryColor,
+                  unselectedLabelColor: Colors.black,
+                  indicatorColor: MyColors.primaryColor,
+                  tabs: [
+                    Tab(text: "Admin"),
+                    Tab(text: "User"),
+                  ],
                 ),
                 const SizedBox(height: 20),
-                // TabBarView content
-                Container(
-                  height: 400, // Fixed height for forms
-                  width: 300,  // Optional: set width if needed
-                  child: TabBarView(
+                SizedBox(
+                  height: 400,
+                  width: 300,
+                  child: const TabBarView(
                     children: [
-                      AdminLogin(),
+                      AdminLoginScreen(),
                       UserLogin(),
                     ],
                   ),
@@ -78,17 +91,5 @@ class _TabBarScreenState extends State<TabBarScreen> {
         ),
       ),
     );
-  }
-  checklogin() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-
-    newuser = (sharedPreferences.getBool('is_login') ?? true);
-    print("yes new user $newuser");
-    if (newuser == false) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => DashboardScreen()),
-      );
-    }
   }
 }

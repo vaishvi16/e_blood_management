@@ -13,7 +13,7 @@ class _BloodRequestState extends State<BloodRequest> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: MyAppBar(centerTitle: false)
+
     );
   }
 }

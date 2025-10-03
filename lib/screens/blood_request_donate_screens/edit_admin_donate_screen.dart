@@ -1,4 +1,3 @@
-import 'package:e_blood_management/widgets/my_app_bar/my_app_bar.dart';
 import 'package:flutter/material.dart';
 
 import '../../colors/my_colors.dart';
@@ -6,31 +5,58 @@ import '../../db_helper/db_helper.dart';
 import '../../widgets/custom_fields/custom_dropdown.dart';
 import '../../widgets/custom_fields/custom_textfield.dart';
 
-class BloodDonate extends StatefulWidget {
-  final int userId;
+class EditAdminDonateScreen extends StatefulWidget {
+  final int donationId;
 
-  const BloodDonate({super.key, required this.userId});
+  const EditAdminDonateScreen({required this.donationId});
 
   @override
-  State<BloodDonate> createState() => _BloodDonateState();
+  State<EditAdminDonateScreen> createState() => _EditAdminDonateScreenState();
 }
 
-class _BloodDonateState extends State<BloodDonate> {
-
-  TextEditingController date = TextEditingController();
-  TextEditingController quantity = TextEditingController();
-  TextEditingController hospitalName = TextEditingController();
-  TextEditingController location = TextEditingController();
-  TextEditingController status = TextEditingController();
+class _EditAdminDonateScreenState extends State<EditAdminDonateScreen> {
+  late TextEditingController date;
+  late TextEditingController quantity;
+  late TextEditingController hospitalName;
+  late TextEditingController status;
+  late TextEditingController location;
 
   final _formKey = GlobalKey<FormState>();
   var dropDownStatus; //for blood group
   DbHelper dbHelper = DbHelper.instance;
+  bool isLoading = true;
 
 
   @override
+  void initState() {
+    super.initState();
+    _loadDonationData();
+  }
+
+  Future<void> _loadDonationData() async {
+    // Fetch donation data by ID from DB
+    final donation = await dbHelper.getDonationById(widget.donationId);
+
+    // Initialize controllers with fetched data
+    date = TextEditingController(text: donation[DbHelper.columnDonationDate]);
+    quantity = TextEditingController(
+      text: donation[DbHelper.columnQuantity].toString(),
+    );
+    hospitalName = TextEditingController(
+      text: donation[DbHelper.columnHospitalName],
+    );
+    location = TextEditingController(text: donation[DbHelper.columnLocation]);
+    dropDownStatus = donation[DbHelper.columnStatus];
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return Scaffold(
+      body: SingleChildScrollView(
         child: Form(
           key: _formKey,
           child: Column(
@@ -39,17 +65,17 @@ class _BloodDonateState extends State<BloodDonate> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: CustomTextField(
-                    controller: date,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "Please enter date";
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.datetime,
-                    labelText: "Date",
-                    hintText: "Enter your Date",
-                   ),
+                  controller: date,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return "Please enter date";
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.datetime,
+                  labelText: "Date",
+                  hintText: "Enter your Date",
+                ),
               ),
               SizedBox(height: 20),
               Padding(
@@ -116,20 +142,12 @@ class _BloodDonateState extends State<BloodDonate> {
               SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
-                  String dateValue = date.text.toString();
-                  String quantityValue = quantity.text.toString();
-                  String hospitalNameValue = hospitalName.text.toString();
-                  String locationValue = location.text.toString();
-                  String statusValue = dropDownStatus ?? '';
-
                   if (_formKey.currentState!.validate()) {
-
-
-                    _insertData(dateValue, quantityValue, hospitalNameValue, locationValue, statusValue);
+                    _updateData();
                   }
                 },
                 child: Text(
-                  "Submit",
+                  "Edit",
                   style: TextStyle(
                     color: MyColors.primaryColor,
                     fontWeight: FontWeight.w800,
@@ -139,41 +157,21 @@ class _BloodDonateState extends State<BloodDonate> {
             ],
           ),
         ),
-      );
-
+      ),
+    );
   }
 
-  void _insertData(String dateValue, String quantityValue, String hospitalNameValue, String locationValue,String statusValue) async {
-    try {
-      Map<String, dynamic> row = {
-        DbHelper.columnUserId: widget.userId,
-        DbHelper.columnDonationDate: dateValue,
-        DbHelper.columnQuantity: quantityValue,
-        DbHelper.columnHospitalName: hospitalNameValue,
-        DbHelper.columnLocation: locationValue,
-        DbHelper.columnStatus: statusValue ?? '',
-      };
+  Future<void> _updateData() async {
+    final updateDonationData = {
+      DbHelper.donationId: widget.donationId,
+      DbHelper.columnDonationDate: date.text,
+      DbHelper.columnQuantity: quantity.text,
+      DbHelper.columnHospitalName: hospitalName.text,
+      DbHelper.columnLocation: location.text,
+      DbHelper.columnStatus: dropDownStatus ?? status.text,
+    };
 
-      print('inserted data: $row');
-      final id = await dbHelper.insertBloodDonateData(row);
-      print('Inserted row id: $id');
-
-      date.clear();
-      quantity.clear();
-      hospitalName.clear();
-      location.clear();
-      status.clear();
-
-      setState(() {
-        dropDownStatus = null;
-      });
-
-    } catch (e) {
-      print('Insert failed: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to insert blood donation data.')),
-      );
-    }
+    await dbHelper.updateBloodDonateData(updateDonationData);
+    Navigator.pop(context, true);
   }
-
 }

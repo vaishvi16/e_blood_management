@@ -1,103 +1,94 @@
 import 'package:e_blood_management/colors/my_colors.dart';
-import 'package:e_blood_management/widgets/custom_fields/custom_textfield.dart';
 import 'package:flutter/material.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../widgets/custom_fields/custom_textfield.dart';
 import '../dashboard_screens/admin_dashboard_screen.dart';
 
-class AdminLogin extends StatefulWidget {
-  const AdminLogin({super.key});
+class AdminLoginScreen extends StatefulWidget {
+  const AdminLoginScreen({super.key});
 
   @override
-  State<AdminLogin> createState() => _AdminLoginState();
+  State<AdminLoginScreen> createState() => _AdminLoginScreenState();
 }
 
-class _AdminLoginState extends State<AdminLogin> {
-  final emailRegex = RegExp(
-    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
-  );
-  final passwordRegex = RegExp(
-    r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}|:<>?~]).{8,}$",
-  );
+class _AdminLoginScreenState extends State<AdminLoginScreen> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  TextEditingController email = TextEditingController();
-  TextEditingController password = TextEditingController();
+  final String adminEmail = "admin123@gmail.com";
+  final String adminPassword = "Admin@123";
+
+  @override
+  void initState() {
+    super.initState();
+    _checkIfAdminLoggedIn();
+  }
+
+  Future<void> _checkIfAdminLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    bool isAdmin = prefs.getBool('is_admin_login') ?? false;
+    if (isAdmin) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => AdminDashboardScreen(),),
+      );
+    }
+  }
+
+  Future<void> _saveAdminSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_admin_login', true);
+  }
+
+  void _loginAdmin() {
+    if (_formKey.currentState!.validate()) {
+      if (emailController.text == adminEmail && passwordController.text == adminPassword) {
+        _saveAdminSession();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AdminDashboardScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Invalid admin credentials")),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SizedBox(height: 10),
             CustomTextField(
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return "Please enter your Email";
-                }
-                if (!emailRegex.hasMatch(value)) {
-                  return 'Please enter a valid email address.';
-                }
-                return null;
-              },
-              keyboardType: TextInputType.emailAddress,
-              controller: email,
+              controller: emailController,
               labelText: "Email",
-              hintText: "Enter your Email",
+              hintText: "Enter email",
+              validator: (value) => value!.isEmpty ? "Enter email" : null,
+              keyboardType: TextInputType.emailAddress,
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 16),
             CustomTextField(
-              controller: password,
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return "Please enter your Password";
-                }
-                if (!passwordRegex.hasMatch(value)) {
-                  return "Password must be of at least 8 characters";
-                }
-                return null;
-              },
-              keyboardType: TextInputType.name,
+              controller: passwordController,
               labelText: "Password",
-              hintText: "Enter your Password",
+              hintText: "Enter password",
+              validator: (value) => value!.isEmpty ? "Enter password" : null,
+              keyboardType: TextInputType.text,
             ),
-            SizedBox(height: 30),
+            const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () {
-                String emailValue = email.text.toString();
-                String passValue = password.text.toString();
-
-                if (_formKey.currentState!.validate()) {
-                  //  signup(n, s, e, p);
-
-                  if (emailValue == "admin123@gmail.com" &&
-                      passValue == "Admin@123") {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AdminDashboardScreen(),
-                      ),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("Please enter valid email and password!"),
-                      ),
-                    );
-                  }
-                }
-              },
-              child: Text(
-                "Login",
-                style: TextStyle(
-                  color: MyColors.primaryColor,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
+              onPressed: _loginAdmin,
+              child: Text("Login", style: TextStyle(
+                color: MyColors.primaryColor,
+                fontWeight: FontWeight.w800,
+              ),),
+            )
           ],
         ),
       ),

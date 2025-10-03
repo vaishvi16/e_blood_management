@@ -25,19 +25,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: MyDrawer(),
-      appBar: MyAppBar(
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Icon(Icons.add_call),
-          ),
-        ],
-        title: Text("E Blood", style: TextStyle(color: Colors.black87)),
-        centerTitle: false,
-      ),
-      body: Column(
+    return Column(
         children: [
           SizedBox(height: 5),
           Card(
@@ -117,8 +105,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: CustomNavBar(),
-    );
+      );
   }
 }

@@ -1,10 +1,12 @@
 import 'package:e_blood_management/colors/my_colors.dart';
+import 'package:e_blood_management/screens/blood_request_donate_screens/admin_blood_donate.dart';
 import 'package:e_blood_management/screens/dashboard_screens/dashboard_screen.dart';
 import 'package:e_blood_management/screens/drawer_navigate_screens/about_us_screen.dart';
 import 'package:e_blood_management/screens/drawer_navigate_screens/guidelines_screen.dart';
 import 'package:e_blood_management/screens/drawer_navigate_screens/profile_screen.dart';
-import 'package:e_blood_management/screens/login_signup_screens/user_login.dart';
+import 'package:e_blood_management/screens/login_signup_screens/tab_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyDrawer extends StatefulWidget {
   const MyDrawer({super.key});
@@ -36,36 +38,40 @@ class _MyDrawerState extends State<MyDrawer> {
               Center(child: Image.asset("assets/logo/blood_logo.png")),
             ],
           ),
-          showMenuOptions("Home", Icon(Icons.home_rounded), DashboardScreen()),
-          showMenuOptions(
-            "Profile",
-            Icon(Icons.person_rounded),
-            ProfileScreen(),
+          Expanded(
+            child: ListView(
+              children: [
+                showMenuOptions("Profile", Icon(Icons.person_rounded), ProfileScreen()),
+                showMenuOptions("Requests", Icon(Icons.bloodtype_outlined), DashboardScreen()),
+                showMenuOptions("Guidelines to donate blood", Icon(Icons.note_outlined), GuidelinesScreen()),
+                showMenuOptions("Donation List", Icon(Icons.history_outlined), AdminBloodDonate()),
+                showMenuOptions("About Us", Icon(Icons.info), AboutUsScreen()),
+              ],
+            ),
           ),
-          showMenuOptions(
-            "Requests",
-            Icon(Icons.bloodtype_outlined),
-            UserLogin(),
+          Divider(color: MyColors.whiteColor),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListTile(
+              title: Text("Logout", style: TextStyle(color: MyColors.whiteColor)),
+              leading: Icon(Icons.logout, color: MyColors.whiteColor),
+              onTap: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.setBool("is_login", false);
+                await prefs.remove("user_id"); // Optional: Clear user ID
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => TabBarScreen()),
+                );
+              },
+            ),
           ),
-          showMenuOptions(
-            "Guidelines to donate blood",
-            Icon(Icons.note_outlined),
-            GuidelinesScreen(),
-          ),
-          showMenuOptions(
-            "Donate History",
-            Icon(Icons.history_outlined),
-            UserLogin(),
-          ),
-          showMenuOptions("Languages", Icon(Icons.language), UserLogin()),
-          showMenuOptions("About Us", Icon(Icons.info), AboutUsScreen()),
-          showMenuOptions("Settings", Icon(Icons.settings), UserLogin()),
         ],
       ),
     );
   }
 
-  showMenuOptions(String title, Icon icon, screen) {
+  showMenuOptions(String title, Icon icon, Widget screen) {
     return ListTile(
       title: Text(title, style: TextStyle(color: MyColors.whiteColor)),
       leading: icon,
