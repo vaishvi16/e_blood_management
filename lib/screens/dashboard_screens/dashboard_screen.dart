@@ -6,7 +6,10 @@ import '../../db_helper/db_helper.dart';
 import '../../widgets/my_grid_view/my_grid_view.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final int userId;
+
+  const DashboardScreen({super.key, required this.userId});
+
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -145,7 +148,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    const Expanded(child: MyGridView()),
+                    Expanded(child: MyGridView(userId: widget.userId)),
                   ],
                 ),
               ],

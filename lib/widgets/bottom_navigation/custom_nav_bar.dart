@@ -24,8 +24,8 @@ class _CustomNavBarState extends State<CustomNavBar> {
   @override
   void initState() {
     screens = [
-      DashboardScreen(),
-      DashboardScreen(),
+      DashboardScreen(userId: widget.userId),
+      DashboardScreen(userId: widget.userId),
       BloodDonate(userId: widget.userId),
       BloodRequest(userId:  widget.userId,),
     ];
